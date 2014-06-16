@@ -2,16 +2,18 @@
 ## and then compute its inverse if possible.  The inverse is cached so that it
 ## won't have to be re-computed in case it is needed again.
 
+##                      **********
 
 ## 'makeCacheMatrix' is a 'constructor' function takes a matrix as its 
-## argument, creates & returns a list of 4 functions that initialize, store, 
-## retrieve, and compute the inverse of the matirix (if it has one).
+## argument, creates 4 'closure' functions that initialize, store, 
+## retrieve, and compute the inverse of the matirix (if it has one), and
+## returns a named list of the 4 functions.
 
 makeCacheMatrix <- function(x = matrix()) {
         ## create a global variable in which to store the inverse of the matrix.
         inverse.x <- NULL
              
-        ## 'set' is a 'closure' function that encloses the environment of
+        ## 'set' is a closure function that encloses the environment of
         ## 'makeCacheMatrix', its parent function. Whenever it is called,
         ## its job is to initialize the global variable that will hold the inverse to NULL
         ## & to store the original matrix in cache memory.
@@ -43,22 +45,31 @@ makeCacheMatrix <- function(x = matrix()) {
 }
 
 
-## Write a short comment describing this function
+## 'cacheSolve' is a function that makes use of the closure functions created by
+## makeCacheMatrix.  It retrieves the original matrix stored by makeCacheMatrix using
+## x$get() and tests to see if it is a square matrix.  If square, it either computes
+## the inverse or retrieves it from cache and returns the inverse.
 
 cacheSolve <- function(x, ...) {
-        ## Return a matrix that is the inverse of 'x'
+        
+        ## Retrieve the original matrix stored in cache by makeCacheMatrix.
         tm <- x$get()
+        ## Is it squeare? If not, stop with error message.
         if(nrow(tm) != ncol(tm)) {
                 stop("Martix isn't square!")
         }
+        ## pull the inverse matrix value from cache. If its value is not NULL, it's
+        ## already been computed. So, return it and exit the function.  
         inverse.x <- x$getinv()
         if(!is.null(inverse.x)) {
                 message("getting cached data")
                 return(inverse.x)
         }
-        data <- x$get()
-        inverse.x <- solve(data)
-        x$setinv(data)
+        ## The inverse matrix value in cache is NULL, so compute it.
+        inverse.x <- solve(tm)
+        ## now save the inverse matrix in cache.
+        x$setinv(tm)
+        ## and finally, return it.
         inverse.x
         
         
